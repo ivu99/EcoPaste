@@ -1,7 +1,12 @@
 {
 	"name": "eco-paste",
+	"description": "一款开源的跨平台剪切板管理工具",
+	"author": {
+		"name": "ayangweb",
+		"email": "ayangweb@foxmail.com"
+	},
 	"private": true,
-	"version": "0.0.3",
+	"version": "0.0.5",
 	"type": "module",
 	"scripts": {
 		"dev": "run-s build:icon dev:vite",
@@ -16,6 +21,9 @@
 		"release": "release-it"
 	},
 	"dependencies": {
+		"@ant-design/happy-work-theme": "^1.0.0",
+		"@formkit/auto-animate": "^0.8.2",
+		"@tanstack/react-virtual": "^3.8.3",
 		"@tauri-apps/api": "^1.6.0",
 		"@unocss/reset": "^0.60.3",
 		"ahooks": "^3.8.0",
@@ -23,23 +31,26 @@
 		"arcdash": "^0.0.51",
 		"clsx": "^2.1.1",
 		"dayjs": "^1.11.11",
+		"i18next": "^23.12.1",
 		"lodash-es": "^4.17.21",
 		"mac-scrollbar": "^0.13.6",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
+		"react-i18next": "^15.0.0",
 		"react-markdown": "^9.0.1",
 		"react-router-dom": "^6.23.1",
 		"rehype-raw": "^7.0.0",
 		"tauri-plugin-autostart-api": "github:tauri-apps/tauri-plugin-autostart#v1",
-		"tauri-plugin-context-menu": "^0.7.0",
+		"tauri-plugin-context-menu": "^0.8.0",
 		"tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql#v1",
 		"valtio": "^1.13.2",
 		"valtio-persist": "^1.0.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.8.1",
+		"@biomejs/biome": "1.8.3",
 		"@commitlint/cli": "^19.3.0",
 		"@commitlint/config-conventional": "^19.2.2",
+		"@iconify-json/hugeicons": "^1.1.0",
 		"@iconify-json/iconamoon": "^1.1.4",
 		"@iconify-json/lucide": "^1.1.189",
 		"@iconify-json/ri": "^1.1.20",
@@ -58,6 +69,7 @@
 		"simple-git-hooks": "^2.11.1",
 		"tsx": "^4.16.2",
 		"typescript": "^5.0.2",
+		"typescript-plugin-css-modules": "^5.1.0",
 		"unocss": "^0.60.3",
 		"unplugin-auto-import": "^0.17.6",
 		"vite": "^5.0.0"

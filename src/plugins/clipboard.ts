@@ -83,8 +83,11 @@ export const readFiles = async (): Promise<ClipboardPayload> => {
  * 读取剪切板图片
  */
 export const readImage = async (): Promise<ClipboardPayload> => {
+	const { saveImageDir } = clipboardStore;
+
 	const { image, ...rest } = await invoke<ReadImage>(
 		CLIPBOARD_PLUGIN.READ_IMAGE,
+		{ dir: saveImageDir },
 	);
 
 	const { size } = await metadata(image);
@@ -101,11 +104,13 @@ export const readImage = async (): Promise<ClipboardPayload> => {
 		}
 	}
 
+	const value = image.replace(saveImageDir, "");
+
 	return {
 		...rest,
 		size,
 		search,
-		value: image,
+		value,
 	};
 };
 
@@ -153,8 +158,8 @@ export const readText = async (): Promise<ClipboardPayload> => {
 /**
  * 文件写入剪切板
  */
-export const writeFiles = async (value: string[]) => {
-	invoke(CLIPBOARD_PLUGIN.WRITE_FILES, {
+export const writeFiles = (value: string[]) => {
+	return invoke(CLIPBOARD_PLUGIN.WRITE_FILES, {
 		value,
 	});
 };
@@ -162,8 +167,8 @@ export const writeFiles = async (value: string[]) => {
 /**
  * 图片写入剪切板
  */
-export const writeImage = async (value: string) => {
-	invoke(CLIPBOARD_PLUGIN.WRITE_IMAGE, {
+export const writeImage = (value: string) => {
+	return invoke(CLIPBOARD_PLUGIN.WRITE_IMAGE, {
 		value,
 	});
 };
@@ -171,8 +176,8 @@ export const writeImage = async (value: string) => {
 /**
  * HTML 内容写入剪切板
  */
-export const writeHTML = async (text: string, html: string) => {
-	invoke(CLIPBOARD_PLUGIN.WRITE_HTML, {
+export const writeHTML = (text: string, html: string) => {
+	return invoke(CLIPBOARD_PLUGIN.WRITE_HTML, {
 		text,
 		html,
 	});
@@ -181,8 +186,8 @@ export const writeHTML = async (text: string, html: string) => {
 /**
  * 富文写入剪切板
  */
-export const writeRichText = async (value: string) => {
-	invoke(CLIPBOARD_PLUGIN.WRITE_RICH_TEXT, {
+export const writeRichText = (value: string) => {
+	return invoke(CLIPBOARD_PLUGIN.WRITE_RICH_TEXT, {
 		value,
 	});
 };
@@ -190,8 +195,8 @@ export const writeRichText = async (value: string) => {
 /**
  * 纯文本写入剪切板
  */
-export const writeText = async (value: string) => {
-	invoke(CLIPBOARD_PLUGIN.WRITE_TEXT, {
+export const writeText = (value: string) => {
+	return invoke(CLIPBOARD_PLUGIN.WRITE_TEXT, {
 		value,
 	});
 };
@@ -199,8 +204,11 @@ export const writeText = async (value: string) => {
 /**
  * 剪贴板更新
  */
-export const onClipboardUpdate = (fn: (payload: ClipboardPayload) => void) => {
+export const onClipboardUpdate = (
+	fn: (payload: ClipboardPayload, oldPayload: ClipboardPayload) => void,
+) => {
 	let payload: ClipboardPayload;
+	let oldPayload: ClipboardPayload;
 
 	return listen(CLIPBOARD_PLUGIN.CLIPBOARD_UPDATE, async () => {
 		if (await hasFiles()) {
@@ -225,6 +233,8 @@ export const onClipboardUpdate = (fn: (payload: ClipboardPayload) => void) => {
 			payload = { ...textPayload, type: "text" };
 		}
 
-		fn(payload);
+		fn(payload, { ...oldPayload });
+
+		oldPayload = payload;
 	});
 };

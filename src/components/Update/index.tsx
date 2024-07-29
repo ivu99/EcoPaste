@@ -7,10 +7,12 @@ import {
 	checkUpdate as tauriCheckUpdate,
 } from "@tauri-apps/api/updater";
 import type { Timeout } from "ahooks/lib/useRequest/src/types";
-import { Flex, Modal, Typography, message } from "antd";
+import { Flex, Modal, message } from "antd";
+import clsx from "clsx";
 import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { useSnapshot } from "valtio";
+import styles from "./index.module.scss";
 
 interface State {
 	open?: boolean;
@@ -23,6 +25,7 @@ let timer: Timeout;
 
 const Update = () => {
 	const { appInfo, autoUpdate } = useSnapshot(globalStore);
+	const { t } = useTranslation();
 
 	const state = useReactive<State>({});
 
@@ -33,7 +36,7 @@ const Update = () => {
 			messageApi.open({
 				key: MESSAGE_KEY,
 				type: "loading",
-				content: "正在检查更新...",
+				content: t("component.app_update.hints.checking_update"),
 				duration: 0,
 			});
 
@@ -61,17 +64,19 @@ const Update = () => {
 		try {
 			const { shouldUpdate, manifest } = await tauriCheckUpdate();
 
-			if (shouldUpdate) {
+			if (shouldUpdate && manifest) {
 				showWindow();
 
 				messageApi.destroy(MESSAGE_KEY);
+
+				manifest.body = replaceManifestBody(manifest.body);
 
 				Object.assign(state, { manifest, open: true });
 			} else if (showMessage) {
 				messageApi.open({
 					key: MESSAGE_KEY,
 					type: "success",
-					content: "当前已是最新版本🎉",
+					content: t("component.app_update.hints.latest_version"),
 				});
 			}
 		} catch {
@@ -80,9 +85,25 @@ const Update = () => {
 			messageApi.open({
 				key: MESSAGE_KEY,
 				type: "error",
-				content: "检查更新时出错，请检查网络并重试。",
+				content: t("component.app_update.hints.update_check_error"),
 			});
 		}
+	};
+
+	const replaceManifestBody = (body: string) => {
+		return (
+			body
+				// 替换贡献者名称
+				.replace(
+					/(-.*?by.*?)@([^ ]+)/g,
+					"$1<a href='https://github.com/$2'><mark>@$2</mark></a>",
+				)
+				// 替换 pr 链接
+				.replace(
+					new RegExp(`(${GITHUB_ISSUES_LINK}/)(\\d+)`, "g"),
+					"[#$2]($1$2)",
+				)
+		);
 	};
 
 	const handleOk = async () => {
@@ -101,7 +122,7 @@ const Update = () => {
 					messageApi.open({
 						key: MESSAGE_KEY,
 						type: "loading",
-						content: "正在下载最新的安装包...",
+						content: t("component.app_update.hints.downloading_latest_package"),
 						duration: 0,
 					});
 					break;
@@ -116,7 +137,7 @@ const Update = () => {
 					messageApi.open({
 						key: MESSAGE_KEY,
 						type: "success",
-						content: "下载完成，即将开始安装并重启应用。",
+						content: t("component.app_update.hints.download_complete_restart"),
 					});
 			}
 		});
@@ -135,47 +156,35 @@ const Update = () => {
 				closable={false}
 				keyboard={false}
 				maskClosable={false}
-				title="发现新版本🥳"
-				okText="立即更新"
-				cancelText="以后再说"
+				title={t("component.app_update.label.new_version_title")}
+				okText={t("component.app_update.button.confirm_update")}
+				cancelText={t("component.app_update.button.cancel_update")}
+				className={styles.modal}
 				confirmLoading={state.loading}
 				onOk={handleOk}
 				onCancel={handleCancel}
 			>
 				<Flex vertical gap="small" className="pt-4">
 					<Flex align="center">
-						更新版本：
+						{t("component.app_update.label.release_version")}：
 						<span>
 							v{appInfo?.version} 👉{" "}
-							<span className="text-primary">v{state.manifest?.version}</span>
+							<a href={`${GITHUB_LINK}/releases/latest`}>
+								v{state.manifest?.version}
+							</a>
 						</span>
 					</Flex>
 
 					<Flex align="center">
-						更新时间：
+						{t("component.app_update.label.release_time")}：
 						<span>{updateTime}</span>
 					</Flex>
 
 					<Flex vertical>
-						更新日志：
+						{t("component.app_update.label.release_notes")}：
 						<Markdown
-							className="revert-all max-h-220 overflow-auto"
+							className={clsx(styles.markdown, "max-h-220 overflow-auto")}
 							rehypePlugins={[rehypeRaw]}
-							components={{
-								a: (props) => {
-									const { href, children } = props;
-
-									return (
-										<Typography.Link
-											href={href}
-											target="_blank"
-											rel="noreferrer"
-										>
-											{children}
-										</Typography.Link>
-									);
-								},
-							}}
 						>
 							{state.manifest?.body}
 						</Markdown>

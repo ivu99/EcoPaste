@@ -39,4 +39,6 @@ subscribeKey(globalStore._persist, "loaded", async (loaded) => {
 	};
 
 	globalStore.platform = await type();
+
+	globalStore.language ??= await getLocale();
 });

@@ -5,57 +5,64 @@ import { Flex, Tag } from "antd";
 import clsx from "clsx";
 
 interface TabItem {
+	key: string;
 	label: string;
 	group?: HistoryItem["group"];
 	isCollected?: boolean;
 }
 
-const tabList: TabItem[] = [
-	{
-		label: "全部",
-	},
-	{
-		label: "文本",
-		group: "text",
-	},
-	{
-		label: "图片",
-		group: "image",
-	},
-	{
-		label: "文件",
-		group: "files",
-	},
-	{
-		label: "收藏",
-		isCollected: true,
-	},
-];
-
 const Tab = () => {
 	const { state } = useContext(HistoryContext);
+	const { t } = useTranslation();
 
-	const [checked, setChecked] = useState(tabList[0].label);
+	const tabList: TabItem[] = [
+		{
+			key: "all",
+			label: t("clipboard.label.tab.all"),
+		},
+		{
+			key: "text",
+			label: t("clipboard.label.tab.text"),
+			group: "text",
+		},
+		{
+			key: "image",
+			label: t("clipboard.label.tab.image"),
+			group: "image",
+		},
+		{
+			key: "file",
+			label: t("clipboard.label.tab.files"),
+			group: "files",
+		},
+		{
+			key: "collect",
+			label: t("clipboard.label.tab.collection"),
+			isCollected: true,
+		},
+	];
+
+	const [checked, setChecked] = useState(tabList[0].key);
 
 	const handleChange = (item: TabItem) => {
-		const { label, group, isCollected } = item;
+		const { key, group, isCollected } = item;
 
-		setChecked(label);
+		setChecked(key);
 
 		Object.assign(state, { group, isCollected });
 	};
 
 	return (
-		<Scrollbar>
+		<Scrollbar thumbSize={0}>
 			<Flex data-tauri-drag-region>
 				{tabList.map((item) => {
-					const { label } = item;
+					const { key, label } = item;
 
-					const isChecked = checked === label;
+					const isChecked = checked === key;
 
 					return (
 						<Tag.CheckableTag
-							key={label}
+							key={key}
 							checked={isChecked}
 							className={clsx({ "bg-primary!": isChecked })}
 							onChange={() => handleChange(item)}

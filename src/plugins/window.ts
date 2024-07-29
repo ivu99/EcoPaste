@@ -1,13 +1,16 @@
 import { WINDOW_PLUGIN } from "@/constants";
-import type { Route } from "@/types/router";
+import type { RoutePath } from "@/types/router";
 import { invoke } from "@tauri-apps/api";
-import { appWindow } from "@tauri-apps/api/window";
+import { type WindowOptions, appWindow } from "@tauri-apps/api/window";
 import { find } from "lodash-es";
 
 /**
  * 创建新窗口
  */
-export const createWindow = (path: Route["path"]) => {
+export const createWindow = (
+	path: RoutePath,
+	priorityOptions?: WindowOptions,
+) => {
 	const label = path.replace("/", "") ?? "main";
 
 	const options = find(routes, { path })?.meta?.windowOptions;
@@ -18,6 +21,7 @@ export const createWindow = (path: Route["path"]) => {
 			url: path,
 			skipTaskbar: true,
 			...options,
+			...priorityOptions,
 		},
 	});
 };
@@ -25,12 +29,23 @@ export const createWindow = (path: Route["path"]) => {
 /**
  * 显示窗口
  */
-export const showWindow = () => invoke(WINDOW_PLUGIN.SHOW_WINDOW);
+export const showWindow = () => {
+	invoke(WINDOW_PLUGIN.SHOW_WINDOW);
+};
 
 /**
  * 隐藏窗口
  */
-export const hideWindow = () => invoke(WINDOW_PLUGIN.HIDE_WINDOW);
+export const hideWindow = () => {
+	invoke(WINDOW_PLUGIN.HIDE_WINDOW);
+};
+
+/**
+ * 给窗口添加阴影
+ */
+export const setWindowShadow = () => {
+	invoke(WINDOW_PLUGIN.SET_WINDOW_SHADOW);
+};
 
 /**
  * 切换窗口的显示和隐藏

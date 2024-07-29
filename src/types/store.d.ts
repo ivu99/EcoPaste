@@ -2,6 +2,13 @@ import type { OsType } from "@tauri-apps/api/os";
 
 export type Theme = "auto" | "light" | "dark";
 
+export type Language = (typeof LANGUAGE)[keyof typeof LANGUAGE];
+
+export interface Store {
+	globalStore: GlobalStore;
+	clipboardStore: ClipboardStore;
+}
+
 export interface GlobalStore {
 	theme: Theme;
 	autoStart: boolean;
@@ -10,13 +17,19 @@ export interface GlobalStore {
 	platform?: OsType;
 	autoUpdate?: boolean;
 	trayClick: "none" | "show";
+	language?: Language;
 }
 
 export interface ClipboardStore {
 	wakeUpKey: string;
 	enableAudio?: boolean;
 	historyCapacity: number;
-	activeIndex: number;
 	windowPosition: "default" | "follow" | "center";
-	doubleClickFeedback: "none" | "copy";
+	searchPosition: "top" | "bottom";
+	clickPaste?: boolean;
+	doubleClickFeedback: "none" | "copy" | "paste";
+	replaceAllImagePath?: boolean;
+	isFocus: boolean;
+	defaultFocus: "firstItem" | "search";
+	saveImageDir: string;
 }

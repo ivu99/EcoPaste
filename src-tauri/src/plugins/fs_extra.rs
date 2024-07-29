@@ -66,32 +66,44 @@ async fn metadata(path: PathBuf) -> Result<Metadata> {
     })
 }
 
+#[cfg(target_os = "macos")]
 #[command]
-async fn preview_file(path: &str, finder: Option<bool>) -> Result<()> {
-    let finder = finder.unwrap_or(true);
+pub async fn preview_path(path: &str, finder: bool) -> Result<()> {
+    let args = if finder { vec!["-R", path] } else { vec![path] };
 
-    let mut program = "open";
-    let mut args = vec![path];
+    Command::new("open").args(args).spawn()?;
 
-    if cfg!(target_os = "windows") {
-        program = "explorer"
-    }
+    Ok(())
+}
 
+#[cfg(target_os = "windows")]
+#[command]
+pub async fn preview_path(path: &str, finder: bool) -> Result<()> {
+    let args = if finder {
+        vec!["/select,", path]
+    } else {
+        vec![path]
+    };
+
+    Command::new("explorer").args(args).spawn()?;
+
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+#[command]
+pub async fn preview_path(path: &str, finder: bool) -> Result<()> {
     if finder {
-        if cfg!(target_os = "windows") {
-            args.insert(0, "/select,")
-        } else {
-            args.insert(0, "-R")
-        }
+        showfile::show_path_in_file_manager(path);
+    } else {
+        Command::new("xdg-open").arg(path).spawn()?;
     }
-
-    Command::new(program).args(args).spawn().unwrap();
 
     Ok(())
 }
 
 pub fn init() -> TauriPlugin<Wry> {
     Builder::new("fs-extra")
-        .invoke_handler(generate_handler![metadata, preview_file])
+        .invoke_handler(generate_handler![metadata, preview_path])
         .build()
 }

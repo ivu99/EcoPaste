@@ -1,21 +1,30 @@
-import ShortcutKey from "@/components/ShortcutKey";
+import Hotkey from "@/components/Hotkey";
 import { Card, Flex, Switch } from "antd";
 import { useSnapshot } from "valtio";
-import AutoStart from "./components/AutoStart";
+import Language from "./components/Language";
 import ThemeMode from "./components/ThemeMode";
 import TrayClick from "./components/TrayClick";
 
 const Settings = () => {
-	const { wakeUpKey, autoUpdate } = useSnapshot(globalStore);
+	const { autoStart, wakeUpKey, autoUpdate } = useSnapshot(globalStore);
+	const { t } = useTranslation();
 
 	return (
 		<Flex vertical gap="middle">
-			<Card title="基础设置">
+			<Card title={t("preference.settings.basic.title")}>
 				<Flex vertical gap="large">
-					<AutoStart />
+					<Flex align="center">
+						<span>{t("preference.settings.basic.label.auto_start")}：</span>
+						<Switch
+							checked={autoStart}
+							onChange={(value) => {
+								globalStore.autoStart = value;
+							}}
+						/>
+					</Flex>
 
 					<Flex align="center">
-						<span>自动更新：</span>
+						<span>{t("preference.settings.basic.label.auto_update")}：</span>
 						<Switch
 							checked={autoUpdate}
 							onChange={(value) => {
@@ -25,8 +34,8 @@ const Settings = () => {
 					</Flex>
 
 					<Flex align="center">
-						<span>唤醒窗口：</span>
-						<ShortcutKey
+						<span>{t("preference.settings.basic.label.wake_up_key")}：</span>
+						<Hotkey
 							defaultValue={wakeUpKey}
 							onChange={(value) => {
 								globalStore.wakeUpKey = value;
@@ -35,6 +44,8 @@ const Settings = () => {
 					</Flex>
 
 					<ThemeMode />
+
+					<Language />
 
 					<TrayClick />
 				</Flex>

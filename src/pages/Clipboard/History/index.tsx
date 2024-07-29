@@ -1,28 +1,37 @@
 import copyAudio from "@/assets/audio/copy.mp3";
-import type { HistoryItem } from "@/types/database";
+import type { HistoryItem, TablePayload } from "@/types/database";
 import { listen } from "@tauri-apps/api/event";
 import {
 	PhysicalPosition,
 	appWindow,
 	currentMonitor,
 } from "@tauri-apps/api/window";
+import { Flex } from "antd";
+import { isEqual } from "arcdash";
 import clsx from "clsx";
 import { createContext } from "react";
 import { useSnapshot } from "valtio";
 import Header from "./components/Header";
 import List from "./components/List";
+import Search from "./components/Search";
 
-interface State extends HistoryItem {
+interface State extends TablePayload {
+	rounded: boolean;
+	pin?: boolean;
 	historyList: HistoryItem[];
+	activeIndex: number;
+	searching?: boolean;
 }
 
 const INITIAL_STATE: State = {
+	rounded: true,
 	historyList: [],
+	activeIndex: 0,
 };
 
 interface HistoryContextValue {
 	state: State;
-	getHistoryList?: (payload?: HistoryItem) => void;
+	getHistoryList?: (payload?: HistoryItem) => Promise<void>;
 }
 
 export const HistoryContext = createContext<HistoryContextValue>({
@@ -30,23 +39,26 @@ export const HistoryContext = createContext<HistoryContextValue>({
 });
 
 const ClipboardHistory = () => {
-	const { wakeUpKey } = useSnapshot(clipboardStore);
+	const { wakeUpKey, searchPosition } = useSnapshot(clipboardStore);
 
 	const audioRef = useRef<HTMLAudioElement>(null);
 
 	const state = useReactive<State>(INITIAL_STATE);
 
 	useMount(async () => {
-		await initDatabase();
+		setWindowShadow();
 
 		startListen();
 
-		onClipboardUpdate(async (payload) => {
+		onClipboardUpdate(async (payload, oldPayload) => {
 			if (clipboardStore.enableAudio) {
 				audioRef.current?.play();
 			}
 
-			const [selectItem] = await selectSQL<HistoryItem[]>("history", payload);
+			const [selectItem] = await selectSQL<HistoryItem[]>("history", {
+				...payload,
+				exact: true,
+			});
 
 			if (selectItem) {
 				await updateSQL("history", {
@@ -54,6 +66,9 @@ const ClipboardHistory = () => {
 					createTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
 				});
 			} else {
+				// Windows 复制部分数据会瞬间得到多条一模一样的数据，如果数据库还没存，直接忽略
+				if (isEqual(payload, oldPayload)) return;
+
 				let group: HistoryItem["group"];
 
 				switch (payload.type) {
@@ -79,6 +94,12 @@ const ClipboardHistory = () => {
 
 		listen(LISTEN_KEY.CLEAR_HISTORY, async () => {
 			await deleteSQL("history");
+
+			getHistoryList();
+		});
+
+		listen(LISTEN_KEY.IMPORT_DATA, async () => {
+			await initDatabase();
 
 			getHistoryList();
 		});
@@ -117,19 +138,34 @@ const ClipboardHistory = () => {
 		toggleWindowVisible();
 	}, [wakeUpKey]);
 
-	useEffect(() => {
-		getHistoryList?.();
-	}, [state.search, state.group, state.isCollected]);
-
 	const getHistoryList = async () => {
-		const { value, search, group, isCollected } = state;
+		const { search, group, isCollected } = state;
 
 		const list = await selectSQL<HistoryItem[]>("history", {
-			value,
 			search,
 			group,
 			isCollected,
 		});
+
+		// TODO: 为了适配导出功能，把旧图片路径替换为文件名，此代码只执行一次，将在以后的版本中移除此段代码
+		if (!clipboardStore.replaceAllImagePath) {
+			const { saveImageDir } = clipboardStore;
+
+			for (const item of list) {
+				const { id, type, value } = item;
+
+				if (type !== "image" || !value?.includes(saveImageDir)) continue;
+
+				item.value = value.replace(saveImageDir, "");
+
+				updateSQL("history", {
+					id,
+					value: item.value,
+				});
+			}
+
+			clipboardStore.replaceAllImagePath = true;
+		}
 
 		state.historyList = list;
 
@@ -139,29 +175,40 @@ const ClipboardHistory = () => {
 			const { id, createTime } = item;
 
 			if (dayjs().diff(createTime, "days") >= clipboardStore.historyCapacity) {
+				if (item.isCollected) continue;
+
 				deleteSQL("history", id);
 			}
 		}
 	};
 
 	return (
-		<div
-			data-tauri-drag-region
-			className={clsx("h-screen rounded-10 bg-1 py-12")}
+		<HistoryContext.Provider
+			value={{
+				state,
+				getHistoryList,
+			}}
 		>
-			<audio ref={audioRef} src={copyAudio} />
-
-			<HistoryContext.Provider
-				value={{
-					state,
-					getHistoryList,
-				}}
+			<Flex
+				data-tauri-drag-region
+				vertical
+				gap={12}
+				className={clsx("h-screen bg-1 py-12", {
+					"rounded-10": !isWin(),
+					"flex-col-reverse": searchPosition === "bottom",
+				})}
 			>
-				<Header />
+				<audio ref={audioRef} src={copyAudio} />
 
-				<List />
-			</HistoryContext.Provider>
-		</div>
+				<Search />
+
+				<Flex data-tauri-drag-region vertical gap={12}>
+					<Header />
+
+					<List />
+				</Flex>
+			</Flex>
+		</HistoryContext.Provider>
 	);
 };
 

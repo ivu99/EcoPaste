@@ -43,24 +43,27 @@
 			"process": {
 				"relaunch": true
 			},
+			"dialog": {
+				"ask": true,
+				"open": true
+			},
 			"window": {
 				"startDragging": true,
 				"setPosition": true,
-				"center": true
-			},
-			"dialog": {
-				"ask": true
+				"center": true,
+				"setTitle": true
 			}
 		},
 		"windows": [
 			{
-				"label": "main",
-				"title": "EcoPaste",
-				"resizable": false,
+				"label": "preference",
+				"url": "/preference",
 				"center": true,
-				"skipTaskbar": true,
-				"hiddenTitle": true,
+				"resizable": false,
 				"maximizable": false,
+				"hiddenTitle": true,
+				"skipTaskbar": true,
+				"visible": false,
 				"titleBarStyle": "Overlay"
 			}
 		],
@@ -78,31 +81,7 @@
 				"icons/128x128@2x.png",
 				"icons/icon.icns",
 				"icons/icon.ico"
-			],
-			"externalBin": ["bin/ocr"],
-			"windows": {
-				"digestAlgorithm": "sha256",
-				"wix": {
-					"language": "zh-CN"
-				},
-				"nsis": {
-					"languages": ["SimpChinese"]
-				}
-			},
-			"dmg": {
-				"appPosition": {
-					"x": 180,
-					"y": 170
-				},
-				"applicationFolderPosition": {
-					"x": 480,
-					"y": 170
-				},
-				"windowSize": {
-					"width": 660,
-					"height": 400
-				}
-			}
+			]
 		},
 		"systemTray": {
 			"iconPath": "assets/tray.png",

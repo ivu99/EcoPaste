@@ -1,0 +1,191 @@
+{
+	"preference": {
+		"title": "Preferences",
+		"menu": {
+			"title": {
+				"clipboard": "Clipboard",
+				"settings": "General",
+				"data_backup": "Backup",
+				"about": "About"
+			}
+		},
+		"clipboard": {
+			"basic": {
+				"title": "Basic Settings",
+				"label": {
+					"wake_up_key": "Hotkey",
+					"enable_audio": "Enable Sound Effects",
+					"search_position": "Search Box Position",
+					"search_position_top": "Top",
+					"search_position_bottom": "Bottom",
+					"default_focus": "Default Focus",
+					"default_focus_first_item": "First Item",
+					"default_focus_search": "Search Box",
+					"click_paste": "Click Paste",
+					"dbl_click_feedback": "Double-Click Feedback",
+					"dbl_click_feedback_none": "None",
+					"dbl_click_feedback_copy": "Copy",
+					"dbl_click_feedback_paste": "Paste",
+					"window_position": "Window Position",
+					"window_position_default": "Default",
+					"window_position_follow": "Follow Mouse",
+					"window_position_center": "Center of Screen"
+				}
+			},
+			"history_capacity": {
+				"title": "History Retention Period",
+				"button": {
+					"clear": "Clear"
+				},
+				"label": {
+					"duration": {
+						"day": "Day",
+						"week": "Week",
+						"month": "Month",
+						"quarter": "Quarter",
+						"half_year": "Half Year",
+						"year": "Year",
+						"unlimited": "Unlimited"
+					}
+				},
+				"hints": {
+					"clear_confirm": "Are you sure you want to clear the history?"
+				}
+			}
+		},
+		"settings": {
+			"basic": {
+				"title": "Basic Settings",
+				"label": {
+					"auto_start": "Auto Startup",
+					"auto_update": "Auto Updates",
+					"wake_up_key": "Hotkey",
+					"theme": "Theme",
+					"theme_auto": "System",
+					"theme_light": "Light",
+					"theme_dark": "Dark",
+					"language": "Language",
+					"tray_click": "Tray Click",
+					"tray_click_none": "None",
+					"tray_click_show": "Show App"
+				}
+			}
+		},
+		"data_backup": {
+			"import_export": {
+				"title": "Import / Export",
+				"label": {
+					"import_confirm_title": "Import Notice",
+					"export_confirm_title": "Export Notice"
+				},
+				"button": {
+					"open_dir": "Open Storage Directory",
+					"import": "Import",
+					"export": "Export",
+					"confirm_export": "Start",
+					"confirm": "Ok",
+					"cancel": "Cancel"
+				},
+				"hints": {
+					"import_confirm": "Imported data will completely overwrite all preferences and clipboard history. Are you sure you want to import?",
+					"export_confirm": "Exported data includes all preferences and clipboard history.",
+					"importing": "Importing",
+					"exporting": "Exporting",
+					"import_success": "Import Successful"
+				}
+			}
+		},
+		"about": {
+			"button": {
+				"copy_info": "Copy Info",
+				"feedback_issue": "Submit Feedback/Report Issue"
+			},
+			"hints": {
+				"introduce": "Open-source cross-platform clipboard tool to make your work more efficient and convenient.",
+				"update_tooltip": "Check for Updates",
+				"copy_tooltip": "Copy app and system info to clipboard for submitting issues or suggestions."
+			}
+		}
+	},
+	"clipboard": {
+		"button": {
+			"context_menu": {
+				"copy": "Copy",
+				"copy_ocr_text": "Copy OCR Text",
+				"paste_as_plain_text": "Paste as Plain Text",
+				"unfavorite": "Unfavorite",
+				"favorite": "Favorite",
+				"open_in_browser": "Open in Browser",
+				"send_email": "Send Email",
+				"export_as_file": "Export as File",
+				"preview_image": "Preview Image",
+				"download_image": "Download Image",
+				"show_in_finder": "Show in Finder",
+				"show_in_file_explorer": "Show in File Explorer",
+				"delete": "Delete",
+				"delete_above": "Delete Above",
+				"delete_below": "Delete Below",
+				"delete_other": "Delete Others",
+				"delete_all": "Delete All"
+			}
+		},
+		"label": {
+			"tab": {
+				"all": "All",
+				"text": "Text",
+				"image": "Image",
+				"files": "File",
+				"collection": "Favorite"
+			},
+			"link": "Link",
+			"email": "Email",
+			"color": "Color",
+			"plain_text": "Plain Text",
+			"rich_text": "Rich Text",
+			"html": "HTML",
+			"image": "Image",
+			"n_files": "{{0}} File(s)",
+			"n_chars": "{{0}} Character(s)"
+		},
+		"hints": {
+			"search_placeholder": "Search...",
+			"delete_confirm": "Are you sure you want to delete this item?"
+		}
+	},
+	"component": {
+		"shortcut_key": {
+			"hints": {
+				"set_shortcut_key": "Set Shortcut Key",
+				"shortcut_key_not_set": "Shortcut Key Not Set"
+			}
+		},
+		"app_update": {
+			"label": {
+				"new_version_title": "New Version Available 🥳",
+				"release_version": "Release Version",
+				"release_time": "Release Time",
+				"release_notes": "Release Notes"
+			},
+			"button": {
+				"confirm_update": "Update Now",
+				"cancel_update": "Postpone"
+			},
+			"hints": {
+				"checking_update": "Checking for updates...",
+				"latest_version": "You are using the latest version 🎉",
+				"update_check_error": "An error occurred while checking for updates Please check your network connection and try again.",
+				"downloading_latest_package": "Downloading the latest package...",
+				"download_complete_restart": "Download completed. Restart the application to apply the update."
+			}
+		},
+		"use_theme": {
+			"button": {
+				"confirm_reboot": "Reboot",
+				"cancel": "Cancel"
+			},
+			"hints": {
+				"reboot_confirm": "Switching themes requires a reboot to take effect!"
+			}
+		}
+	}
+}

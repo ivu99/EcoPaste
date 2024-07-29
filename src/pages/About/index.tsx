@@ -1,13 +1,14 @@
 import Icon from "@/components/Icon";
 import { getTauriVersion } from "@tauri-apps/api/app";
 import { emit } from "@tauri-apps/api/event";
-import { arch, type, version } from "@tauri-apps/api/os";
+import { arch, version } from "@tauri-apps/api/os";
 import { open } from "@tauri-apps/api/shell";
 import { Button, Flex, Tooltip } from "antd";
 import { useSnapshot } from "valtio";
 
 const About = () => {
-	const { appInfo } = useSnapshot(globalStore);
+	const { appInfo, platform } = useSnapshot(globalStore);
+	const { t } = useTranslation();
 
 	const update = () => {
 		emit(LISTEN_KEY.UPDATE);
@@ -18,7 +19,7 @@ const About = () => {
 			appName: appInfo?.name,
 			appVersion: appInfo?.version,
 			tauriVersion: await getTauriVersion(),
-			platform: await type(),
+			platform,
 			platformArch: await arch(),
 			platformVersion: await version(),
 		};
@@ -27,7 +28,7 @@ const About = () => {
 	};
 
 	const feedbackIssue = () => {
-		open(`${GITHUB_LINK}/issues/new/choose`);
+		open(`${GITHUB_ISSUES_LINK}/new/choose`);
 	};
 
 	return (
@@ -37,14 +38,14 @@ const About = () => {
 			justify="center"
 			className="color-2 h-full transition"
 		>
-			<img src="logo.png" className="h-120 w-120" alt="logo" />
+			<img src="/logo.png" className="h-120 w-120" alt="logo" />
 			<Flex vertical align="center" gap="small">
 				<div className="color-1 font-bold text-22 transition">
 					{appInfo?.name}
 				</div>
 				<Flex align="center" gap={4}>
 					<span>v{appInfo?.version}</span>
-					<Tooltip title="检查更新">
+					<Tooltip title={t("preference.about.hints.update_tooltip")}>
 						<Icon
 							hoverable
 							name="i-iconamoon:restart"
@@ -53,11 +54,11 @@ const About = () => {
 						/>
 					</Tooltip>
 				</Flex>
-				<span>开源的跨平台剪切板工具，让您的工作更加高效便捷。</span>
+				<span>{t("preference.about.hints.introduce")}</span>
 				<Flex gap="middle">
-					<Tooltip title="复制应用和系统信息，用于 Issue">
+					<Tooltip title={t("preference.about.hints.copy_tooltip")}>
 						<Button size="large" type="primary" onClick={copyInfo}>
-							复制信息
+							{t("preference.about.button.copy_info")}
 						</Button>
 					</Tooltip>
 
@@ -68,7 +69,7 @@ const About = () => {
 						type="primary"
 						onClick={feedbackIssue}
 					>
-						反馈问题
+						{t("preference.about.button.feedback_issue")}
 					</Button>
 				</Flex>
 			</Flex>

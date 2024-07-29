@@ -1,5 +1,7 @@
 export const GITHUB_LINK = "https://github.com/ayangweb/EcoPaste";
 
+export const GITHUB_ISSUES_LINK = "https://github.com/ayangweb/EcoPaste/issues";
+
 export const LISTEN_KEY = {
 	ABOUT: "about",
 	GITHUB: "github",
@@ -8,18 +10,20 @@ export const LISTEN_KEY = {
 	CLEAR_HISTORY: "clear-history",
 	UPDATE: "update",
 	TRAY_CLICK: "tray-click",
+	IMPORT_DATA: "import-data",
+	CHANGE_LANGUAGE: "change-language",
 };
 
 export const WINDOW_PLUGIN = {
 	CREATE_WINDOW: "plugin:window|create_window",
 	SHOW_WINDOW: "plugin:window|show_window",
 	HIDE_WINDOW: "plugin:window|hide_window",
+	SET_WINDOW_SHADOW: "plugin:window|set_window_shadow",
 };
 
 export const FS_EXTRA_PLUGIN = {
 	METADATA: "plugin:fs-extra|metadata",
-	GET_IMAGE_BASE64: "plugin:fs-extra|get_image_base64",
-	PREVIEW_FILE: "plugin:fs-extra|preview_file",
+	PREVIEW_PATH: "plugin:fs-extra|preview_path",
 };
 
 export const CLIPBOARD_PLUGIN = {
@@ -52,6 +56,33 @@ export const OCR_PLUGIN = {
 };
 
 export const THEME_PLUGIN = {
-	SET_THEME: "plugin:theme|set_theme",
 	GET_THEME: "plugin:theme|get_theme",
+	SET_THEME: "plugin:theme|set_theme",
+};
+
+export const BACKUP_PLUGIN = {
+	EXPORT_DATA: "plugin:backup|export_data",
+	IMPORT_DATA: "plugin:backup|import_data",
+};
+
+export const STORE_FILE_NAME = "store";
+
+export const LANGUAGE = {
+	ZH_CN: "zh-CN",
+	ZH_TW: "zh-TW",
+	EN_US: "en-US",
+	JA_JP: "ja-JP",
+} as const;
+
+export const LOCALE_PLUGIN = {
+	GET_LOCALE: "plugin:locale|get_locale",
+	SET_LOCALE: "plugin:locale|set_locale",
+};
+
+export const PASTE_PLUGIN = {
+	PASTE: "plugin:paste|paste",
+};
+
+export const AUTO_LAUNCH_PLUGIN = {
+	IS_AUTO_LAUNCH: "plugin:auto_launch|is_auto_launch",
 };

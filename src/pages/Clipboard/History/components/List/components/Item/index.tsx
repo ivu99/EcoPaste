@@ -1,9 +1,10 @@
 import { HistoryContext } from "@/pages/Clipboard/History";
 import type { HistoryItem } from "@/types/database";
-import { BaseDirectory, copyFile, writeFile } from "@tauri-apps/api/fs";
+import { copyFile, writeFile } from "@tauri-apps/api/fs";
+import { downloadDir } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/shell";
 import { Flex } from "antd";
-import type { FC, KeyboardEvent, MouseEvent } from "react";
+import type { CSSProperties, FC, KeyboardEvent, MouseEvent } from "react";
 import { type ContextMenu, showMenu } from "tauri-plugin-context-menu";
 import { useSnapshot } from "valtio";
 import Files from "./components/Files";
@@ -16,6 +17,7 @@ import Text from "./components/Text";
 interface ItemProps {
 	index: number;
 	data: HistoryItem;
+	style: CSSProperties;
 }
 
 interface MenuItem extends ContextMenu.Item {
@@ -23,30 +25,25 @@ interface MenuItem extends ContextMenu.Item {
 }
 
 const Item: FC<ItemProps> = (props) => {
-	const { index, data } = props;
-	const {
-		id,
-		type,
-		group,
-		value = "",
-		search = "",
-		createTime = "",
-		isCollected,
-	} = data;
+	const { index, style, data } = props;
+	const { id, type, group, value, search, createTime, isCollected } = data;
 
 	const { state, getHistoryList } = useContext(HistoryContext);
-	const { appInfo } = useSnapshot(globalStore);
-	const { activeIndex, doubleClickFeedback } = useSnapshot(clipboardStore);
+	const { appInfo, theme } = useSnapshot(globalStore);
+	const { doubleClickFeedback, clickPaste } = useSnapshot(clipboardStore);
+	const { t } = useTranslation();
 
 	const containerRef = useRef<HTMLElement>(null);
 
 	useEffect(() => {
-		if (activeIndex === index) {
+		if (state.searching) return;
+
+		if (state.activeIndex === index) {
 			containerRef.current?.focus();
 		} else {
 			containerRef.current?.blur();
 		}
-	}, [activeIndex]);
+	}, [state.activeIndex, state.searching, state.historyList]);
 
 	const copy = () => {
 		switch (type) {
@@ -84,27 +81,32 @@ const Item: FC<ItemProps> = (props) => {
 	};
 
 	const exportFile = async () => {
-		const ext = type === "text" ? "txt" : type;
+		const extension = type === "text" ? "txt" : type;
+		const fileName = `${appInfo?.name}_${id}.${extension}`;
+		const destination = (await downloadDir()) + fileName;
 
-		writeFile(`${appInfo?.name}_${id}.${ext}`, value, {
-			dir: BaseDirectory.Download,
-		});
+		await writeFile(destination, value);
+
+		previewPath(destination);
 	};
 
-	const previewImage = () => {
-		previewFile(value, false);
+	const previewImage = async () => {
+		previewPath(value, false);
 	};
 
 	const downloadImage = async () => {
-		copyFile(value, `${appInfo?.name}_${id}.png`, {
-			dir: BaseDirectory.Download,
-		});
+		const fileName = `${appInfo?.name}_${id}.png`;
+		const destination = (await downloadDir()) + fileName;
+
+		await copyFile(value, destination);
+
+		previewPath(destination);
 	};
 
 	const openFinder = () => {
 		const [file] = JSON.parse(value);
 
-		previewFile(file);
+		previewPath(file);
 	};
 
 	const deleteItem = async () => {
@@ -115,7 +117,7 @@ const Item: FC<ItemProps> = (props) => {
 
 	const deleteAbove = async () => {
 		const list = state.historyList.filter((item) => {
-			const isMore = item.createTime! > createTime;
+			const isMore = item.createTime > createTime;
 			const isDifferent = item.createTime === createTime && item.id !== id;
 
 			return isMore || isDifferent;
@@ -126,7 +128,7 @@ const Item: FC<ItemProps> = (props) => {
 
 	const deleteBelow = async () => {
 		const list = state.historyList.filter((item) => {
-			const isLess = item.createTime! < createTime;
+			const isLess = item.createTime < createTime;
 			const isDifferent = item.createTime === createTime && item.id !== id;
 
 			return isLess || isDifferent;
@@ -142,11 +144,33 @@ const Item: FC<ItemProps> = (props) => {
 	};
 
 	const deleteAll = async (list: HistoryItem[]) => {
-		for await (const item of list) {
+		let filteredList = list;
+
+		if (!state.isCollected) {
+			filteredList = list.filter((item) => !item.isCollected);
+		}
+
+		for await (const item of filteredList) {
 			await deleteSQL("history", item.id);
 		}
 
 		getHistoryList?.();
+	};
+
+	const pasteValue = async () => {
+		await copy();
+
+		if (isMac()) {
+			paste();
+		} else {
+			hideWindow();
+
+			await paste();
+
+			if (!state.pin) return;
+
+			showWindow();
+		}
 	};
 
 	const handleContextMenu = async (event: MouseEvent) => {
@@ -154,100 +178,117 @@ const Item: FC<ItemProps> = (props) => {
 
 		const menus: MenuItem[] = [
 			{
-				label: "复制",
+				label: t("clipboard.button.context_menu.copy"),
 				event: copy,
 			},
 			{
-				label: "复制OCR文本",
-				hide: type !== "image",
+				label: t("clipboard.button.context_menu.copy_ocr_text"),
+				hide: type !== "image" || /^[\s]*$/.test(search),
 				event: copyPlainText,
 			},
 			{
-				label: "粘贴为纯文本",
+				label: t("clipboard.button.context_menu.paste_as_plain_text"),
 				hide: type !== "html",
 				event: copyPlainText,
 			},
 			{
-				label: isCollected ? "取消收藏" : "收藏",
+				label: isCollected
+					? t("clipboard.button.context_menu.unfavorite")
+					: t("clipboard.button.context_menu.favorite"),
 				event: collect,
 			},
 			{
-				label: "在浏览器访问",
+				label: t("clipboard.button.context_menu.open_in_browser"),
 				hide: type !== "text" || !isURL(value),
 				event: openBrowser,
 			},
 			{
-				label: "发送邮件",
+				label: t("clipboard.button.context_menu.send_email"),
 				hide: type !== "text" || !isEmail(value),
 				event: sendEmail,
 			},
 			{
-				label: "导出为文件",
+				label: t("clipboard.button.context_menu.export_as_file"),
 				hide: group !== "text",
 				event: exportFile,
 			},
 			{
-				label: "预览图片",
+				label: t("clipboard.button.context_menu.preview_image"),
 				hide: type !== "image",
 				event: previewImage,
 			},
 			{
-				label: "下载图片",
+				label: t("clipboard.button.context_menu.download_image"),
 				hide: type !== "image",
 				event: downloadImage,
 			},
 			{
-				label: isMac() ? "在 Finder 中显示" : "在文件资源管理器中显示",
+				label: isMac()
+					? t("clipboard.button.context_menu.show_in_finder")
+					: t("clipboard.button.context_menu.show_in_file_explorer"),
 				hide: type !== "files",
 				event: openFinder,
 			},
 			{
-				label: "删除",
+				label: t("clipboard.button.context_menu.delete"),
 				event: deleteItem,
 			},
 			{
-				label: "删除上方",
+				label: t("clipboard.button.context_menu.delete_above"),
 				hide: index === 0,
 				event: deleteAbove,
 			},
 			{
-				label: "删除下方",
+				label: t("clipboard.button.context_menu.delete_below"),
 				hide: index === state.historyList.length - 1,
 				event: deleteBelow,
 			},
 			{
-				label: "删除其它",
+				label: t("clipboard.button.context_menu.delete_other"),
 				hide: state.historyList.length === 1,
 				event: deleteOther,
 			},
 			{
-				label: "删除所有",
+				label: t("clipboard.button.context_menu.delete_all"),
 				hide: state.historyList.length === 1,
 				event: () => deleteAll(state.historyList),
 			},
 		];
 
-		showMenu({ items: menus.filter(({ hide }) => !hide) });
+		showMenu({
+			items: menus.filter(({ hide }) => !hide),
+			// @ts-ignore
+			theme,
+		});
+	};
+
+	const handleClick = () => {
+		if (!clickPaste) return;
+
+		pasteValue();
 	};
 
 	const handleDoubleClick = () => {
-		if (doubleClickFeedback === "none") return;
+		if (clickPaste || doubleClickFeedback === "none") return;
 
 		if (doubleClickFeedback === "copy") {
 			return copy();
 		}
+
+		pasteValue();
 	};
 
 	const handleFocus = () => {
-		clipboardStore.activeIndex = index;
+		state.activeIndex = index;
 	};
 
 	const handleKeyDown = (event: KeyboardEvent) => {
 		const isSpace = event.code === "Space";
 		const isArrowUp = event.code === "ArrowUp";
 		const isArrowDown = event.code === "ArrowDown";
+		const isEnter = event.code === "Enter";
 
-		if (isSpace || isArrowUp || isArrowDown) {
+		if (isSpace || isArrowUp || isArrowDown || isEnter) {
 			event.preventDefault();
 		}
 
@@ -256,11 +297,15 @@ const Item: FC<ItemProps> = (props) => {
 		}
 
 		if (isArrowUp && index > 0) {
-			clipboardStore.activeIndex = index - 1;
+			state.activeIndex = index - 1;
 		}
 
 		if (isArrowDown && index < state.historyList.length - 1) {
-			clipboardStore.activeIndex = index + 1;
+			state.activeIndex = index + 1;
+		}
+
+		if (isEnter) {
+			pasteValue();
 		}
 	};
 
@@ -285,8 +330,10 @@ const Item: FC<ItemProps> = (props) => {
 			ref={containerRef}
 			tabIndex={0}
 			gap={4}
-			className="antd-input b-color-2 mx-auto mb-12 h-120 w-336 rounded-6 p-6"
+			style={style}
+			className="antd-input b-color-2 absolute inset-0 mx-12 h-full w-336! rounded-6 p-6"
 			onContextMenu={handleContextMenu}
+			onClick={handleClick}
 			onDoubleClick={handleDoubleClick}
 			onFocus={handleFocus}
 			onKeyDown={handleKeyDown}

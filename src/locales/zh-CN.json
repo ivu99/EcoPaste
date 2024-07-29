@@ -1,0 +1,191 @@
+{
+	"preference": {
+		"title": "偏好设置",
+		"menu": {
+			"title": {
+				"clipboard": "剪切板",
+				"settings": "通用设置",
+				"data_backup": "数据备份",
+				"about": "关于"
+			}
+		},
+		"clipboard": {
+			"basic": {
+				"title": "基础设置",
+				"label": {
+					"wake_up_key": "唤醒窗口",
+					"enable_audio": "启用音效",
+					"search_position": "搜索位置",
+					"search_position_top": "顶部",
+					"search_position_bottom": "底部",
+					"default_focus": "默认聚焦",
+					"default_focus_first_item": "首项",
+					"default_focus_search": "搜索",
+					"click_paste": "单击粘贴",
+					"dbl_click_feedback": "双击反馈",
+					"dbl_click_feedback_none": "无反馈",
+					"dbl_click_feedback_copy": "复制内容",
+					"dbl_click_feedback_paste": "粘贴内容",
+					"window_position": "窗口位置",
+					"window_position_default": "默认位置",
+					"window_position_follow": "跟随鼠标",
+					"window_position_center": "屏幕中心"
+				}
+			},
+			"history_capacity": {
+				"title": "历史记录容量",
+				"button": {
+					"clear": "清空"
+				},
+				"label": {
+					"duration": {
+						"day": "天",
+						"week": "周",
+						"month": "月",
+						"quarter": "季度",
+						"half_year": "半年",
+						"year": "年",
+						"unlimited": "无限制"
+					}
+				},
+				"hints": {
+					"clear_confirm": "确定要清空历史记录吗？"
+				}
+			}
+		},
+		"settings": {
+			"basic": {
+				"title": "基础设置",
+				"label": {
+					"auto_start": "开机自启",
+					"auto_update": "自动更新",
+					"wake_up_key": "唤醒窗口",
+					"theme": "主题模式",
+					"theme_auto": "自动",
+					"theme_light": "亮色",
+					"theme_dark": "暗色",
+					"language": "语言选择",
+					"tray_click": "单击托盘",
+					"tray_click_none": "无操作",
+					"tray_click_show": "显示应用"
+				}
+			}
+		},
+		"data_backup": {
+			"import_export": {
+				"title": "导入和导出",
+				"label": {
+					"import_confirm_title": "导入须知",
+					"export_confirm_title": "导出须知"
+				},
+				"button": {
+					"open_dir": "打开存储目录",
+					"import": "导入数据",
+					"export": "导出数据",
+					"confirm_export": "开始导出",
+					"confirm": "确定",
+					"cancel": "取消"
+				},
+				"hints": {
+					"import_confirm": "导入的数据会完全覆盖所有的偏好设置以及所有的剪切板历史数据，你确定要导入吗？",
+					"export_confirm": "导出的数据包含所有的偏好设置以及所有的剪切板历史数据。",
+					"importing": "正在导入",
+					"exporting": "正在导出",
+					"import_success": "导入成功"
+				}
+			}
+		},
+		"about": {
+			"button": {
+				"copy_info": "复制信息",
+				"feedback_issue": "反馈信息"
+			},
+			"hints": {
+				"introduce": "开源的跨平台剪切板工具，让您的工作更加高效便捷。",
+				"update_tooltip": "检查更新",
+				"copy_tooltip": "复制应用和系统信息，用于 Issue"
+			}
+		}
+	},
+	"clipboard": {
+		"button": {
+			"context_menu": {
+				"copy": "复制",
+				"copy_ocr_text": "复制OCR文本",
+				"paste_as_plain_text": "粘贴为纯文本",
+				"unfavorite": "取消收藏",
+				"favorite": "收藏",
+				"open_in_browser": "在浏览器访问",
+				"send_email": "发送邮件",
+				"export_as_file": "导出为文件",
+				"preview_image": "预览图片",
+				"download_image": "下载图片",
+				"show_in_finder": "在 Finder 中显示",
+				"show_in_file_explorer": "在文件资源管理器中显示",
+				"delete": "删除",
+				"delete_above": "删除上方",
+				"delete_below": "删除下方",
+				"delete_other": "删除其它",
+				"delete_all": "删除所有"
+			}
+		},
+		"label": {
+			"tab": {
+				"all": "全部",
+				"text": "文本",
+				"image": "图片",
+				"files": "文件",
+				"collection": "收藏"
+			},
+			"link": "链接",
+			"email": "邮箱",
+			"color": "颜色",
+			"plain_text": "纯文本",
+			"rich_text": "富文本",
+			"html": "HTML",
+			"image": "图片",
+			"n_files": "{{0}}个文件（夹）",
+			"n_chars": "{{0}}个字符"
+		},
+		"hints": {
+			"search_placeholder": "搜索",
+			"delete_confirm": "确定删除该历史记录？"
+		}
+	},
+	"component": {
+		"shortcut_key": {
+			"hints": {
+				"set_shortcut_key": "按键盘设置快捷键",
+				"shortcut_key_not_set": "未设置快捷键"
+			}
+		},
+		"app_update": {
+			"label": {
+				"new_version_title": "发现新版本🥳",
+				"release_version": "更新版本",
+				"release_time": "更新时间",
+				"release_notes": "更新日志"
+			},
+			"button": {
+				"confirm_update": "立即更新",
+				"cancel_update": "以后再说"
+			},
+			"hints": {
+				"checking_update": "正在检查更新...",
+				"latest_version": "当前已是最新版本🎉",
+				"update_check_error": "检查更新时出错，请检查网络并重试。",
+				"downloading_latest_package": "正在下载最新的安装包...",
+				"download_complete_restart": "下载完成，即将开始安装并重启应用。"
+			}
+		},
+		"use_theme": {
+			"button": {
+				"confirm_reboot": "重启",
+				"cancel": "取消"
+			},
+			"hints": {
+				"reboot_confirm": "切换主题需要重启 app 才能生效！"
+			}
+		}
+	}
+}
